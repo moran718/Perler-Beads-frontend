@@ -1273,4 +1273,134 @@ body {
     white-space: nowrap;
 }
 
+/* ==========================================================================
+   移动端响应式适配 (Mobile Responsive Layout)
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* 1. 全局布局改为单栏 */
+    .app-main {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+    
+    .app-container {
+        padding: 12px;
+    }
+    
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 16px;
+        text-align: left;
+    }
+
+    .header-desc {
+        font-size: 12px;
+    }
+
+    /* 2. 限制尺寸预设按钮单栏排列，文字不换行也不挤压 */
+    .size-preset-buttons {
+        grid-template-columns: 1fr !important;
+        gap: 6px;
+    }
+
+    .size-preset-buttons button {
+        grid-column: span 1 !important;
+    }
+
+    .size-preset-buttons button:last-child {
+        grid-column: span 1 !important;
+    }
+
+    .preset-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    /* 3. Canvas 头部和操作栏排列，防止按钮挤压换行 */
+    .canvas-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .canvas-actions {
+        flex-wrap: wrap; /* 允许换行，但项内不换行 */
+        width: 100%;
+        gap: 6px;
+    }
+
+    .canvas-actions .divider {
+        display: none; /* 移动端隐藏分割线 */
+    }
+
+    /* 文字按钮强制不被挤压换行，显示在一行 */
+    .text-btn {
+        white-space: nowrap;
+        font-size: 11px;
+        padding: 6px 10px;
+        flex: 1; /* 自动撑满 */
+        justify-content: center;
+    }
+
+    /* 4. 物料清单头部和操作栏排列 */
+    .list-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .list-actions {
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 6px;
+    }
+
+    .list-actions button, 
+    .list-actions .total-beads-badge {
+        flex: 1;
+        justify-content: center;
+        white-space: nowrap;
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    /* 5. 裁剪弹窗底部操作区多行排列，防文字挤压 */
+    .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .crop-aspect-ratios {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .modal-actions {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .modal-actions button {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    /* 6. 高度微调 */
+    .canvas-card {
+        height: auto;
+        min-height: 400px;
+    }
+    
+    .canvas-container {
+        height: 360px;
+    }
+}
+
+
 
