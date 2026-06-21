@@ -2,7 +2,7 @@
 // 拼豆像素化工具前端核心逻辑
 // ==========================================================================
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://perler-beads-backend.onrender.com/api';
 
 // 全局状态变量
 let selectedFile = null;
