@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelBead - 智能拼豆像素化辅助工具</title>
+    <!-- Google Fonts Outfit & Noto Sans SC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+SC:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Cropper.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 背景光效晕染 -->
+    <div class="aurora-bg">
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="aurora aurora-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- 头部导航栏 -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-shapes logo-icon"></i>
+                <span class="logo-text">PixelBead <span class="badge">Artkal</span></span>
+            </div>
+            <div class="header-desc">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 轻松将照片转化为像素拼豆图纸
+            </div>
+        </header>
+
+        <!-- 主体内容 -->
+        <main class="app-main">
+            <!-- 侧边控制面板 -->
+            <section class="panel-sidebar">
+                <div class="glass-card panel-card">
+                    <h2 class="section-title"><i class="fa-solid fa-sliders"></i> 参数配置</h2>
+
+                    <!-- 1. 图片上传区 -->
+                    <div class="upload-wrapper">
+                        <div id="drop-zone" class="drop-zone">
+                            <input type="file" id="file-input" accept="image/*" class="file-input">
+                            <div class="drop-zone-content">
+                                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                                <p class="upload-tip">拖拽图片到这里，或<span>点击上传</span></p>
+                                <p class="upload-sub">支持 PNG, JPG, JPEG, WEBP (最大 10MB)</p>
+                            </div>
+                            <div id="preview-thumbnail" class="preview-thumbnail hidden">
+                                <img id="thumbnail-img" src="" alt="缩略图">
+                                <button type="button" id="remove-img-btn" class="remove-img-btn" title="移除图片">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 尺寸设定 -->
+                    <div class="setting-group">
+                        <label class="setting-label">
+                            <span>网格尺寸 (豆数)</span>
+                            <span class="setting-hint" id="size-display">52 x 52</span>
+                        </label>
+                        <div class="size-preset-buttons">
+                            <button type="button" class="preset-btn active" data-w="52" data-h="52">模板x4
+                                (52x52)</button>
+                            <button type="button" class="preset-btn" data-w="78" data-h="78">模板x9 (78x78)</button>
+                            <button type="button" class="preset-btn" data-w="104" data-h="104">模板x16 (104x104)</button>
+                            <button type="button" class="preset-btn" data-w="original">原图尺寸 (1:1)</button>
+                            <button type="button" class="preset-btn" data-w="custom">自定义</button>
+                        </div>
+                        <div id="custom-size-inputs" class="custom-size-inputs hidden">
+                            <div class="input-field">
+                                <span class="input-addon">宽</span>
+                                <input type="number" id="grid-width" value="52" min="5" max="150">
+                            </div>
+                            <div class="input-field">
+                                <span class="input-addon">高</span>
+                                <input type="number" id="grid-height" value="52" min="5" max="150">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 色彩限制 -->
+                    <div class="setting-group">
+                        <label class="setting-label" for="max-colors">
+                            <span>限制颜色数量</span>
+                            <span class="setting-hint" id="colors-display">无限制</span>
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" id="max-colors" min="4" max="80" value="24" step="1">
+                            <div class="slider-marks">
+                                <span>少 (4)</span>
+                                <span id="color-unlimited-mark">多 (80)</span>
+                            </div>
+                        </div>
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="unlimited-colors" checked>
+                            <span class="checkmark"></span>
+                            <span class="checkbox-label">不限颜色</span>
+                        </label>
+                    </div>
+
+                    <!-- 4. 抖动算法 -->
+                    <div class="setting-group">
+                        <div class="switch-container">
+                            <div class="switch-info">
+                                <span class="setting-label-inline">色彩抖动 (Dithering)</span>
+                                <p class="setting-desc">开启后让渐变色过渡更自然，适合细节复杂的图</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="enable-dither" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 运行按钮 -->
+                    <button type="button" id="generate-btn" class="primary-btn btn-glow" disabled>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 立即生成拼豆图纸
+                    </button>
+                </div>
+            </section>
+
+            <!-- 右侧画布与清单 -->
+            <section class="content-area">
+                <!-- 画布工作区 -->
+                <div class="glass-card canvas-card">
+                    <div class="canvas-header">
+                        <h3 class="card-title"><i class="fa-solid fa-border-all"></i> 图纸预览</h3>
+                        <div class="canvas-actions">
+                            <button type="button" id="zoom-in" class="icon-btn" title="放大"><i
+                                    class="fa-solid fa-magnifying-glass-plus"></i></button>
+                            <button type="button" id="zoom-out" class="icon-btn" title="缩小"><i
+                                    class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <button type="button" id="zoom-fit" class="icon-btn" title="适应屏幕"><i
+                                    class="fa-solid fa-arrows-to-eye"></i></button>
+                            <span class="divider"></span>
+                            <button type="button" id="toggle-grid" class="text-btn active" title="切换网格线"><i
+                                    class="fa-solid fa-table-cells"></i> 网格线</button>
+                            <button type="button" id="toggle-style" class="text-btn active" title="切换拼豆质感/普通色块"><i
+                                    class="fa-solid fa-circle"></i> 豆子质感</button>
+                            <button type="button" id="toggle-codes" class="text-btn active" title="显示/隐藏色号"><i
+                                    class="fa-solid fa-font"></i> 显示色号</button>
+                        </div>
+                    </div>
+
+                    <!-- 核心画布容器 -->
+                    <div id="canvas-container" class="canvas-container">
+                        <canvas id="bead-canvas"></canvas>
+                        <!-- 鼠标悬停色号提示 Tooltip -->
+                        <div id="bead-tooltip" class="bead-tooltip hidden"></div>
+                        <!-- 初始引导 -->
+                        <div id="canvas-placeholder" class="canvas-placeholder">
+                            <i class="fa-solid fa-image placeholder-icon"></i>
+                            <p>请在左侧上传图片并点击生成，在此查看拼豆网格图纸</p>
+                            <span class="placeholder-tip">支持使用鼠标滚轮缩放、鼠标左键拖拽平移画布</span>
+                        </div>
+                        <!-- 加载中动画 -->
+                        <div id="loading-overlay" class="loading-overlay hidden">
+                            <div class="spinner"></div>
+                            <p>正在智能分析并匹配 Perler 色卡...</p>
+                        </div>
+                    </div>
+
+                    <!-- 画布下方快捷提示 -->
+                    <div class="canvas-footer hidden" id="canvas-footer-tip">
+                        <i class="fa-solid fa-circle-info"></i> 鼠标悬停在豆子上可查看色号；点击右侧颜色清单可高亮画布中对应的所有拼豆。
+                    </div>
+                </div>
+
+                <!-- 拼豆清单列表 -->
+                <div class="glass-card list-card">
+                    <div class="list-header">
+                        <h3 class="card-title"><i class="fa-solid fa-list-check"></i> 拼豆物料清单</h3>
+                        <div class="list-actions">
+                            <span class="total-beads-badge" id="total-beads-count">共 0 颗</span>
+                            <button type="button" id="export-pdf-btn" class="secondary-btn" disabled>
+                                <i class="fa-solid fa-file-pdf"></i> 导出 PDF 清单
+                            </button>
+                            <button type="button" id="export-img-btn" class="secondary-btn" disabled>
+                                <i class="fa-solid fa-download"></i> 保存高清图纸
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="list-container">
+                        <!-- 清单空状态 -->
+                        <div id="list-placeholder" class="list-placeholder">
+                            暂无物料数据，生成图纸后自动计算用量
+                        </div>
+
+                        <!-- 真正列表 -->
+                        <div id="beads-list" class="beads-list hidden">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 裁剪图片模态弹窗 -->
+    <div id="crop-modal" class="modal hidden">
+        <div class="glass-card modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-crop-simple"></i> 裁剪图像区域</h3>
+                <button type="button" id="close-crop-modal" class="close-btn" title="关闭"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="crop-container">
+                    <img id="crop-image" src="" alt="待裁剪图">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="crop-aspect-ratios">
+                    <span class="ratio-label">裁剪比例:</span>
+                    <button type="button" class="ratio-btn active" id="ratio-1-1">1:1 正方形</button>
+                    <button type="button" class="ratio-btn" id="ratio-free">自由比例</button>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="crop-skip-btn" class="secondary-btn">无需裁剪</button>
+                    <button type="button" id="crop-cancel-btn" class="secondary-btn">取消</button>
+                    <button type="button" id="crop-confirm-btn" class="primary-btn btn-glow">确认裁剪</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗提示组件 -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <!-- html2pdf.js 用于前端生成 PDF 文件并下载 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
