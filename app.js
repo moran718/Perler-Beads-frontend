@@ -27,6 +27,8 @@ let offsetY = 0;       // 画布在Y轴的平移偏移
 let isDragging = false;
 let startX = 0;
 let startY = 0;
+let touchStartDist = 0;
+let touchStartScale = 15;
 
 // ==========================================================================
 // DOM 元素初始化与事件绑定
@@ -180,6 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 鼠标悬停色号提示事件
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mouseleave', handleMouseLeave);
+
+    // 触摸屏拖拽和双指缩放事件
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
 
     // 导出文件
     document.getElementById('export-img-btn').addEventListener('click', exportHighResImage);
@@ -630,6 +637,117 @@ function pan(e) {
 
 function endPan() {
     isDragging = false;
+}
+
+// 触摸屏事件处理：单指拖拽平移，双指捏合缩放
+function handleTouchStart(e) {
+    if (!apiData) return;
+    
+    // 阻止浏览器默认的缩放和滚动行为
+    e.preventDefault();
+
+    if (e.touches.length === 1) {
+        // 单指拖动平移
+        isDragging = true;
+        startX = e.touches[0].clientX - offsetX;
+        startY = e.touches[0].clientY - offsetY;
+        
+        // 单指触碰时显示对应的拼豆色号提示
+        showTouchTooltip(e.touches[0]);
+    } else if (e.touches.length === 2) {
+        // 双指缩放
+        isDragging = false;
+        touchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+        touchStartScale = scale;
+        document.getElementById('bead-tooltip').classList.add('hidden');
+    }
+}
+
+function handleTouchMove(e) {
+    if (!apiData) return;
+    
+    e.preventDefault();
+
+    if (e.touches.length === 1 && isDragging) {
+        // 平移画布
+        offsetX = e.touches[0].clientX - startX;
+        offsetY = e.touches[0].clientY - startY;
+        draw();
+        
+        // 平移时隐藏提示框
+        document.getElementById('bead-tooltip').classList.add('hidden');
+    } else if (e.touches.length === 2) {
+        // 缩放画布
+        const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (touchStartDist > 0) {
+            const factor = dist / touchStartDist;
+            const newScale = touchStartScale * factor;
+            if (newScale >= 2 && newScale <= 150) {
+                scale = newScale;
+                draw();
+            }
+        }
+    }
+}
+
+function handleTouchEnd(e) {
+    if (!apiData) return;
+    
+    e.preventDefault();
+
+    if (e.touches.length === 0) {
+        isDragging = false;
+        touchStartDist = 0;
+    } else if (e.touches.length === 1) {
+        // 从双指变为单指时，以剩下的手指继续平移
+        isDragging = true;
+        startX = e.touches[0].clientX - offsetX;
+        startY = e.touches[0].clientY - offsetY;
+        touchStartDist = 0;
+    }
+}
+
+// 触摸屏显示色号提示 tooltip
+function showTouchTooltip(touch) {
+    const bead = getBeadUnderMouse(touch);
+    const tooltip = document.getElementById('bead-tooltip');
+
+    if (bead && bead.color) {
+        const color = bead.color;
+        tooltip.innerHTML = `
+            <div class="tooltip-color-sphere" style="background-color: ${color.hex};"></div>
+            <div class="tooltip-info">
+                <div class="tooltip-title">${color.brand} ${color.code} - ${color.name}</div>
+                <div class="tooltip-desc">${color.englishName} | ${color.hex}</div>
+            </div>
+        `;
+
+        const containerRect = container.getBoundingClientRect();
+        let tooltipX = touch.clientX - containerRect.left + 15;
+        let tooltipY = touch.clientY - containerRect.top + 15;
+
+        // 防止提示框超出画布容器边界
+        const tooltipWidth = 240;
+        const tooltipHeight = 60;
+        if (tooltipX + tooltipWidth > containerRect.width) {
+            tooltipX = touch.clientX - containerRect.left - tooltipWidth - 15;
+        }
+        if (tooltipY + tooltipHeight > containerRect.height) {
+            tooltipY = touch.clientY - containerRect.top - tooltipHeight - 15;
+        }
+
+        tooltip.style.left = `${tooltipX}px`;
+        tooltip.style.top = `${tooltipY}px`;
+        tooltip.classList.remove('hidden');
+    } else {
+        tooltip.classList.add('hidden');
+    }
 }
 
 // ==========================================================================
